@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Site name
-SITE_NAME="moodle"
+SITE_NAME="moodle44"
 PHP="8.1"
 
 # Add the site incase it was removed/does not exist
@@ -55,9 +55,10 @@ docker exec "$SITE_NAME" php admin/cli/cfg.php --name=autologinguests --set=1
 echo "Purging caches..."
 docker exec "$SITE_NAME" php admin/cli/purge_caches.php
 
-# Wait again
-echo "Waiting for sites to warm up..."
-sleep 5
-
 # Run load test
-ab -n 100 https://"$SITE_NAME".localhost/course/view.php?id=2
+echo "Run benchmarking..."
+# Look like the first request return more data than subsequent ones, then cause lots of fail request
+# Ignore the first request
+ab -n 1 https://"$SITE_NAME".localhost/course/view.php?id=2
+ab -n 100 https://"$SITE_NAME".localhost/course/view.php?id=2 > $SITE_NAME
+
